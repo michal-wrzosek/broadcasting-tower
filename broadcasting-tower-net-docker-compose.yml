@@ -1,0 +1,22 @@
+version: "3"
+services:
+  app:
+    image: xfor/broadcasting-tower:latest
+    environment:
+      - PORT=3000
+      - MAX_NUMBER_OF_MESSAGES_PER_QUERY=1000
+      - MAX_MESSAGE_SIZE_IN_BYTES=10000
+      - MAX_CACHE_SIZE_IN_BYTES=1000000000
+    ports:
+      - "3000:3000"
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./broadcasting-tower-net-nginx.conf:/etc/nginx/conf.d/default.conf
+      - /etc/nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - app

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Broadcasting Tower</title>
+    <meta name="description" content="Broadcast and query messages freely.">
+    <meta name="author" content="Michał Wrzosek">
+  </head>
+  <body>
+    <h1>Broadcasting Tower v{{VERSION}}</h1>
+
+    <fieldset>
+      <legend>Broadcast message</legend>
+      <form action="api/v1/broadcast" method="post">
+        <table>
+          <tr>
+            <td>
+              <label for="messageText">Message:</label>
+            </td>
+            <td>
+              <input type="text" id="messageText" name="messageText" required />
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <button type="submit">Broadcast</button>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </fieldset>
+
+    <br />
+    <br />
+
+    <fieldset>
+      <legend>Query messages</legend>
+      <form action="api/v1/messages" method="get">
+        <table>
+          <tr>
+            <td>
+              <label for="startsWith">Starts with:</label>
+            </td>
+            <td>
+              <input type="text" id="startsWith" name="startsWith" />
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <label for="timestampFrom">Timestamp from:</label>
+            </td>
+            <td>
+              <input type="text" id="timestampFrom" name="timestampFrom" />
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <label for="timestampTo">Timestamp to:</label>
+            </td>
+            <td>
+              <input type="text" id="timestampTo" name="timestampTo" />
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <label for="order">Order:</label>
+            </td>
+            <td>
+              <input type="radio" id="asc" name="order" value="asc" />
+              <label for="asc">asc</label>
+              <input type="radio" id="desc" name="order" value="desc" />
+              <label for="desc">desc</label>
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <label for="limit">Limit:</label>
+            </td>
+            <td>
+              <input type="text" id="limit" name="limit" />
+            </td>
+          </tr>
+
+          <tr>
+            <td>
+              <button type="submit">Query messages</button>
+            </td>
+          </tr>
+        </table>
+      </form>
+    </fieldset>
+
+    <br />
+    <br />
+
+    <fieldset>
+      <legend>Tower stats</legend>
+      <p>
+        <strong>Messages stored:</strong> {{MESSAGES_STORED}}
+        <br />
+        <strong>Messages stored size in bytes:</strong> {{MESSAGES_STORED_SIZE}}
+        <br />
+        <strong>Messages stored size limit in bytes:</strong> {{MESSAGES_STORED_SIZE_LIMIT}}
+        <br />
+        <strong>Messages per second:</strong> {{MESSAGES_PER_SECOND}}
+      </p>
+    </fieldset>
+
+    <br />
+    <br />
+
+    <h3>About</h3>
+    <p>
+      This is a simple broadcasting tower. You can broadcast messages and query
+      them.
+      <br />
+      The goal of this service is to facilitate free Internet communication.
+      <br />
+      <br />
+      This project is open-sourced and the code and instructions can be found on <a href="https://github.com/michal-wrzosek/broadcasting-tower">https://github.com/michal-wrzosek/broadcasting-tower</a>.
+    </p>
+
+    <h3>API v1</h3>
+    <p>
+      <strong>Broadcast message</strong>
+      <br />
+      <code>POST /api/v1/broadcast</code>
+      <br />
+      You can send a json (Header: "Content-Type: application/json")
+      <code>{"messageText": "Hello, World!"}</code>
+      <br />
+      or a form data (Header: "Content-Type: application/x-www-form-urlencoded")
+      <code>messageText=Hello, World!</code>
+      <br />
+      Max byte length of "messageText" is {{MAX_MESSAGE_SIZE_IN_BYTES}} bytes (assuming "utf-8"
+      encoding).
+      <br />
+      This broadcasting tower will store max {{MESSAGES_STORED_SIZE_LIMIT}} bytes of recent messages.
+      <br />
+      The successful response will have a status of 201 and the response body will contain a message entry, example:
+      <pre>
+        1725703790081|Hello, World!
+      </pre>
+      A timestamp in milliseconds and a "|" separator in front of the message text.
+      <br />
+      In case of an error, the response status will be 400 and the response body will contain a string "failure".
+
+      <br />
+      <br />
+
+      <strong>Query messages</strong>
+      <br />
+      <code>GET /api/v1/messages</code>
+      <br />
+      You can query messages by specifying the following query parameters:
+      <ul>
+        <li><code>startsWith</code> (optional): Filter messages that start with
+          the specified text.</li>
+        <li><code>timestampFrom</code> (optional): Filter messages that have a
+          timestamp greater than or equal to the specified timestamp. (in milliseconds)</li>
+        <li><code>timestampTo</code> (optional): Filter messages that have a
+          timestamp less than or equal to the specified timestamp. (in milliseconds)</li>
+        <li><code>order</code> (optional): Order messages by timestamp in
+          ascending or descending order. Default is descending. (newest first)</li>
+        <li><code>limit</code> (optional): Limit the number of messages to
+          return. Default and the default is {{MAX_NUMBER_OF_MESSAGES_PER_QUERY}}.</li>
+      </ul>
+      Example query:
+      <br />
+      <code>/api/v1/messages?startsWith=message&amp;timestampFrom=1725703790070&amp;timestampTo=1725703790081&amp;order=desc&amp;limit=4</code>
+      <br />
+      <br/>
+      Example response (status: 200):
+      <pre>
+        1725703790081|message4
+        1725703790080|message3
+        1725703790079|message2
+        1725703790078|message1
+      </pre>
+      Each message entry is separated by a newline character with a timestamp in milliseconds and a "|" separator in front of the message text.
+      <br />
+      <br />
+      Response type headers:
+      <ul>
+        <li>Content-Type: text/plain</li>
+        <li>Transfer-Encoding: chunked</li>
+      </ul>
+      In case of an error, the response status will be 400 and the response body will contain a string "failure".
+    </p>
+  </body>
+</html>

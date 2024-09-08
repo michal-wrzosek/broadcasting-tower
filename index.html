@@ -131,10 +131,10 @@
       <code>POST /api/v1/broadcast</code>
       <br />
       You can send a json (Header: "Content-Type: application/json")
-      <code>{"messageText": "Hello, World!"}</code>
+      <code>{"messageText":"Hello, World!"}</code>
       <br />
       or a form data (Header: "Content-Type: application/x-www-form-urlencoded")
-      <code>messageText=Hello, World!</code>
+      <code>messageText=Hello+World%21</code>
       <br />
       Max byte length of "messageText" is {{MAX_MESSAGE_SIZE_IN_BYTES}} bytes (assuming "utf-8"
       encoding).

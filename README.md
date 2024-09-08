@@ -1,6 +1,6 @@
 # Broadcasting Tower
 
-[<img src="broadcasting-tower-logo.png" width="350" />](broadcasting-tower-logo.png)
+[<img src="broadcasting-tower-cover-text.png" width="450" />](broadcasting-tower-cover-text.png)
 
 This is a simple broadcasting tower service. You can broadcast messages and query them.
 
@@ -150,3 +150,11 @@ Configure github actions secrets:
 - SERVER_PASSWORD
 
 On each push to `main` branch new image will be created and the server will restart with the newest one
+
+### Final notes
+
+I'm open for any suggestions and contributions. You can write to me on michal@wrzosek.pl
+
+Michał Wrzosek
+
+[<img src="broadcasting-tower-logo.png" width="450" />](broadcasting-tower-logo.png)

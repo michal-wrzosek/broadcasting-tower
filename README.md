@@ -26,7 +26,7 @@ You can send a JSON (Header: `Content-Type: application/json`)
 or a form data (Header: `Content-Type: application/x-www-form-urlencoded`)
 
 ```
-messageText=Hello, World!
+messageText=Hello+World%21
 ```
 
 Max byte length of "messageText" is 10,000 bytes (assuming "utf-8" encoding).

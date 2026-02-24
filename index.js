@@ -3,6 +3,7 @@ const { readFileSync } = require("node:fs");
 const path = require("node:path");
 const express = require("express");
 const { z } = require("zod");
+const cors = require("cors");
 const { version } = require("./package.json");
 
 const app = express();
@@ -47,7 +48,7 @@ const maxHeapSizeInBytes = v8.getHeapStatistics().heap_size_limit;
 // max 80% of the available memory
 const finalMaxCacheSizeInBytes = Math.min(
   config.MAX_CACHE_SIZE_IN_BYTES,
-  maxHeapSizeInBytes * 0.8
+  maxHeapSizeInBytes * 0.8,
 );
 
 const errorMessage = "failure";
@@ -72,6 +73,7 @@ const indexHtml = readFileSync(path.join(__dirname, "/index.html"), "utf8");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors({ origin: "*" }));
 
 app.get("/", (_req, res) => {
   res.send(
@@ -81,23 +83,23 @@ app.get("/", (_req, res) => {
       .replace(/{{MESSAGES_STORED_SIZE}}/g, String(cacheSizeInBytes))
       .replace(
         /{{MESSAGES_STORED_SIZE_LIMIT}}/g,
-        finalMaxCacheSizeInBytes.toFixed(0)
+        finalMaxCacheSizeInBytes.toFixed(0),
       )
       .replace(
         /{{MESSAGES_PER_SECOND}}/g,
         (cache.length > 0 && cache[0][0] - cache[cache.length - 1][0] > 0
           ? cache.length / (cache[0][0] - cache[cache.length - 1][0])
           : 0
-        ).toFixed(4)
+        ).toFixed(4),
       )
       .replace(
         /{{MAX_MESSAGE_SIZE_IN_BYTES}}/g,
-        config.MAX_MESSAGE_SIZE_IN_BYTES
+        config.MAX_MESSAGE_SIZE_IN_BYTES,
       )
       .replace(
         /{{MAX_NUMBER_OF_MESSAGES_PER_QUERY}}/g,
-        config.MAX_NUMBER_OF_MESSAGES_PER_QUERY
-      )
+        config.MAX_NUMBER_OF_MESSAGES_PER_QUERY,
+      ),
   );
 });
 
@@ -126,7 +128,7 @@ const messagesQuerySchema = z.object({
         .int()
         .positive()
         .min(1)
-        .max(config.MAX_NUMBER_OF_MESSAGES_PER_QUERY)
+        .max(config.MAX_NUMBER_OF_MESSAGES_PER_QUERY),
     )
     .default(config.MAX_NUMBER_OF_MESSAGES_PER_QUERY),
 });
@@ -136,7 +138,7 @@ app.get("/api/v1/messages", (req, res) => {
   res.setHeader("Transfer-Encoding", "chunked");
 
   const messagesQuerySchemaParseResult = messagesQuerySchema.safeParse(
-    req.query
+    req.query,
   );
 
   if ("error" in messagesQuerySchemaParseResult) {
@@ -156,19 +158,19 @@ app.get("/api/v1/messages", (req, res) => {
 
   if (timestampFrom) {
     queriedCache = queriedCache.filter(
-      ([timestamp]) => timestamp >= timestampFrom
+      ([timestamp]) => timestamp >= timestampFrom,
     );
   }
 
   if (timestampTo) {
     queriedCache = queriedCache.filter(
-      ([timestamp]) => timestamp <= timestampTo
+      ([timestamp]) => timestamp <= timestampTo,
     );
   }
 
   if (startsWith) {
     queriedCache = queriedCache.filter(([, messageText]) =>
-      messageText.startsWith(startsWith)
+      messageText.startsWith(startsWith),
     );
   }
 
@@ -193,7 +195,7 @@ const broadcastQuerySchema = z.object({
 
 app.post("/api/v1/broadcast", (req, res) => {
   const broadcastQuerySchemaParseResult = broadcastQuerySchema.safeParse(
-    req.body
+    req.body,
   );
 
   if ("error" in broadcastQuerySchemaParseResult) {
@@ -227,7 +229,7 @@ app.post("/api/v1/broadcast", (req, res) => {
 
 app.listen(config.PORT, () => {
   console.log(
-    `MAX_NUMBER_OF_MESSAGES_PER_QUERY: ${config.MAX_NUMBER_OF_MESSAGES_PER_QUERY}`
+    `MAX_NUMBER_OF_MESSAGES_PER_QUERY: ${config.MAX_NUMBER_OF_MESSAGES_PER_QUERY}`,
   );
   console.log(`MAX_MESSAGE_SIZE_IN_BYTES: ${config.MAX_MESSAGE_SIZE_IN_BYTES}`);
   console.log(`MAX_CACHE_SIZE_IN_BYTES: ${config.MAX_CACHE_SIZE_IN_BYTES}`);
@@ -236,6 +238,6 @@ app.listen(config.PORT, () => {
   console.log(`Final max cache size in bytes: ${finalMaxCacheSizeInBytes}`);
 
   console.log(
-    `Broadcasting Tower v${version} listening on PORT: ${config.PORT}`
+    `Broadcasting Tower v${version} listening on PORT: ${config.PORT}`,
   );
 });
